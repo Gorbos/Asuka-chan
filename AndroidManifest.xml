@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="eva02.thebeast.asuka_chan"
+    package="lila.raw.skills.asuka"
     android:versionCode="1"
     android:versionName="1.0" >
 
@@ -14,7 +14,7 @@
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
         <activity
-            android:name="eva02.thebeast.asuka_chan.Main"
+            android:name="lila.raw.skills.asuka.Main"
             android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -22,6 +22,10 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        
+        <service
+            android:name="lila.raw.skills.asuka.FanService"
+            android:exported="false" />
     </application>
-
+	<uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
 </manifest>

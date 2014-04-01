@@ -1,15 +1,22 @@
-package eva02.thebeast.asuka_chan;
+package lila.raw.skills.asuka;
 
 import android.os.Bundle;
 import android.app.Activity;
+import android.content.Context;
+import android.content.Intent;
 import android.view.Menu;
 
 public class Main extends Activity {
+	public static Context context;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.main_unit);
+//		setContentView(R.layout.main_unit);
+		context = getApplicationContext();
+		Intent svc = new Intent(this, FanService.class);
+        startService(svc);
+        finish();
 	}
 
 	@Override
