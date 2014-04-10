@@ -4,8 +4,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 
+
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.BitmapRegionDecoder;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.graphics.Rect;
@@ -15,7 +17,7 @@ import android.widget.Toast;
 
 public class AsukaChan {
 	
-	private String TAG = "Allouete";
+	private String TAG = "AsukaChan";
 	
 	private List<Coordinates> walkSprite = new ArrayList<Coordinates>();
 	private List<Coordinates> runSprite = new ArrayList<Coordinates>();
@@ -34,8 +36,8 @@ public class AsukaChan {
 	private Rect actualImg;
 	private int x;
 	private int y;
-	public int width = 66;
-	public int height = 130;
+	public int width = 132;
+	public int height = 198;
 	private int spriteX = 0;
 	
 	public int ySpeed = 0;
@@ -51,23 +53,27 @@ public class AsukaChan {
 	private Bitmap asukanormal;
 	private Bitmap asukamirror;
 	Matrix matrix = new Matrix();
+	int spriteDuration = 10;
 	
 	public AsukaChan(SurfaceView sv){
 		this.sv = sv;
 		bottom = height;
 		x = 10;
 		createasuka();
+		
 	}
 	
 	public void onDraw(Canvas canvas) {
 		 
 		 move();
+		 //Bitmap.
 		 canvas.drawBitmap(asuka, spriteImg, actualImg, null);
+		 
 	}
 	
 	public void move(){
-		if(asuka == null)
-			asuka = asukanormal;
+//		if(asuka == null)
+//			asuka = asukanormal;
 		switch(state){
 			case ATField.SPRITE_STAND:
 				spriteX = 0;
@@ -78,34 +84,48 @@ public class AsukaChan {
 			
 		
 			case ATField.SPRITE_WALK:
-				spriteX++;
-				if(spriteX >1){
+				if(spriteX >walkSprite.size() - 1){
 					spriteX = 0;
 				}
 				
 				coords = walkSprite.get(spriteX);
 				spriteImg = new Rect(coords.left,coords.top,coords.right,coords.bottom);
 				actualImg = new Rect(x, y, x + width, y + height);
+				spriteX++;
+				
 			break;
 			
 			case ATField.SPRITE_RUN:
-				spriteX++;
-				if(spriteX >walkSprite.size()){
-					spriteX = 3;
+				
+				if(spriteX >runSprite.size() - 1){
+					spriteX = 0;
+					setState(STAND);
 				}
-				coords = standbySprite.get(spriteX);
+				coords = runSprite.get(spriteX);
 				spriteImg = new Rect(coords.left,coords.top,coords.right,coords.bottom);
 				actualImg = new Rect(x, y, x + width, y + height);
+				spriteX++;
 				break;
 			
+			case ATField.SPRITE_JUMP:
+				if(spriteX >5){
+					setState(STAND);
+				}
+				coords = jumpSprite.get(0);
+				spriteImg = new Rect(coords.left,coords.top,coords.right,coords.bottom);
+				actualImg = new Rect(x, y, x + width, y + height);
+				spriteX++;
+				break;
 		}
 	}
 	
 	private void createasuka(){
+		asuka = BitmapFactory.decodeResource(Main.context.getResources(), R.drawable.asukachanmirror);
 		asukamirror = BitmapFactory.decodeResource(Main.context.getResources(), R.drawable.asukachan);
-		asukanormal = BitmapFactory.decodeResource(Main.context.getResources(), R.drawable.asukachan);
 		setStand();
 		setWalk();
+		setJump();
+		setRun();
 //		asuka = Bitmap.createBitmap(BitmapFactory.decodeResource(MainActivity.context.getResources(), R.drawable.asuka),0,0,251,153);
 //		Log.i(TAG,me.getWidth()+"");
 //		me = Bitmap.createBitmap(me, 0,0,340,180);
@@ -119,6 +139,7 @@ public class AsukaChan {
 	private void setWalk(){
 		walkSprite.add(new Coordinates(66,0,132,130));
 		walkSprite.add(new Coordinates(132,0,198,130));
+		//walkSprite.add(new Coordinates(198,0,264,130));
 	}
 	
 	private void setRun(){
@@ -127,7 +148,7 @@ public class AsukaChan {
 	}
 	
 	private void setJump(){
-		jumpSprite.add(new Coordinates(330,0,396,130));;
+		jumpSprite.add(new Coordinates(330,0,396,130));
 	}
 	
 	public class Coordinates{
@@ -176,6 +197,7 @@ public class AsukaChan {
 	
 	public void setDirection(int st){
 //		state = st;
+		spriteX = 0;
 		direction = st;
 //		switch(direction){
 //			case ATField.USER_SWIPE_E:

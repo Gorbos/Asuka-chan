@@ -9,6 +9,12 @@ public class ATField {
 	public static final int SPRITE_DEAD = 4;
 	public static final int SPRITE_ATTACK = 5;
 	public static final int SPRITE_HIT = 6;
+	public static final int SPRITE_ANGRY = 7;
+	public static final int SPRITE_CRY = 8;
+	public static final int SPRITE_POINT = 9;
+	public static final int SPRITE_LOVE = 10;
+	public static final int SPRITE_HAPPY = 11;
+	
 	
 	public static final int SPRITE_DIRECTION_LEFT = 1000;
 	public static final int SPRITE_DIRECTION_UP = 0100;

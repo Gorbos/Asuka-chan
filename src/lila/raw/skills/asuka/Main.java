@@ -14,7 +14,8 @@ public class Main extends Activity {
 		super.onCreate(savedInstanceState);
 //		setContentView(R.layout.main_unit);
 		context = getApplicationContext();
-		Intent svc = new Intent(this, FanService.class);
+//		Intent svc = new Intent(this, FanService.class);
+		Intent svc = new Intent(this, SingletonFanService.class);
         startService(svc);
         finish();
 	}

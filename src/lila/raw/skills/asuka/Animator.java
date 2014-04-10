@@ -10,11 +10,11 @@ import android.graphics.PorterDuffXfermode;
 import android.graphics.PorterDuff.Mode;
 import android.view.SurfaceHolder;
 
-@SuppressLint("WrongCall")
+@SuppressLint({ "WrongCall", "DrawAllocation" })
 public class Animator extends MySurfaceView {
 	private MySurfaceView me;
 	private SurfaceHolder holder;	
-	private Paint paint;
+	private Paint paint = new Paint();
 	private AnimatorThread animatorThread;
 	public AsukaChan asuka;
 	
@@ -28,6 +28,7 @@ public class Animator extends MySurfaceView {
 		this.getHolder().setFormat(PixelFormat.TRANSPARENT);
 	}
 	
+	@SuppressLint("DrawAllocation")
 	@Override
 	public void onDraw(Canvas canvas) {
 		 
