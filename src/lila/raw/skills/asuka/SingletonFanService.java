@@ -33,10 +33,12 @@ import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
 import android.view.WindowManager.LayoutParams;
+import android.view.animation.AlphaAnimation;
 import android.widget.Button;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
@@ -45,6 +47,10 @@ import android.widget.Toast;
 public class SingletonFanService extends Service implements OnTouchListener, OnClickListener {
     
 	private String TAG = "SingletonFanService";
+	
+	private Message cloud;
+	
+	ImageGroup vg;
 	
     private View topLeftView;
  
@@ -91,22 +97,58 @@ public class SingletonFanService extends Service implements OnTouchListener, OnC
 	overlayedButton.setBackgroundColor(0x55fe4444);
 	overlayedButton.setOnClickListener(this);
 	
+	vg = new ImageGroup(this);
+	
+//	cloud.setVisibility(View.INVISIBLE);
+//	AlphaAnimation alpha = new AlphaAnimation(0.5F, 0.5F);
+//	alpha.setDuration(0); 
+//	alpha.setFillAfter(true);
+//	cloud.startAnimation(alpha);
+	
 	asukaChibi = new AnimateME(this);
 //	asuka.setBackgroundColor(0x55fe4444);
 //	asuka.setAlpha(0.0f);
 	asukaChibi.setOnTouchListener(this);
 	//WindowManager.LayoutParams.WRAP_CONTENT,500
-	WindowManager.LayoutParams params = new WindowManager.
+	WindowManager.LayoutParams asukaParams = new WindowManager.
 					LayoutParams(asukaWidth, 
 									asukaHeight, 
 										WindowManager.LayoutParams.TYPE_SYSTEM_ALERT, 
 											WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE | WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL, 
 											PixelFormat.TRANSLUCENT);
+	asukaParams.gravity = Gravity.LEFT | Gravity.TOP;
+	asukaParams.x = 0;
+	asukaParams.y = 0;
+//	wm.addView(asukaChibi, params);
+//	asukaParams = (LayoutParams) asukaChibi.getLayoutParams();
+	vg.addView(asukaChibi);
+	
+	cloud = new Message(this);
+	WindowManager.LayoutParams cloudParams = new WindowManager.
+			LayoutParams(cloud.getWidth(), 
+							cloud.getHeight());
+	cloudParams.gravity = Gravity.RIGHT | Gravity.TOP;
+	cloudParams.x = 0;
+	cloudParams.y = 0;
+	
+	vg.addView(cloud,cloudParams);
+	
+	WindowManager.LayoutParams params = new WindowManager.
+			LayoutParams(asukaWidth + 200, 
+							asukaHeight, 
+								WindowManager.LayoutParams.TYPE_SYSTEM_ALERT, 
+									WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE | WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL, 
+									PixelFormat.TRANSLUCENT);
 	params.gravity = Gravity.LEFT | Gravity.TOP;
 	params.x = 0;
 	params.y = 0;
-	wm.addView(asukaChibi, params);
-	asukaParams = (LayoutParams) asukaChibi.getLayoutParams();
+	wm.addView(vg, params);
+	
+	
+	
+	
+	
+	asukaParams = (LayoutParams) vg.getLayoutParams();
 	
 	topLeftView = new View(this);
 	WindowManager.LayoutParams topLeftParams = new WindowManager.LayoutParams(WindowManager.LayoutParams.WRAP_CONTENT, WindowManager.LayoutParams.WRAP_CONTENT, WindowManager.LayoutParams.TYPE_SYSTEM_ALERT, WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE | WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL, PixelFormat.TRANSLUCENT);
@@ -121,7 +163,7 @@ public class SingletonFanService extends Service implements OnTouchListener, OnC
 //	ai.run();
 //	moveAsuka();
     }
- 
+   
     @Override
     public void onDestroy() {
 	super.onDestroy();
@@ -142,6 +184,7 @@ public class SingletonFanService extends Service implements OnTouchListener, OnC
  
     @Override
     public boolean onTouch(View v, MotionEvent event) {
+    	asukaChibi.asuka.setState(ATField.SPRITE_LOVE);
 //    	handler.post(new Runnable() {
 //			@Override
 //			public void run() {
@@ -151,56 +194,56 @@ public class SingletonFanService extends Service implements OnTouchListener, OnC
 //    
 // 
 //	return true;
-    	
-
-    	if (event.getAction() == MotionEvent.ACTION_DOWN) {
-    	    float x = event.getRawX();
-    	    float y = event.getRawY();
-     
-    	    moving = false;
-     
-    	    int[] location = new int[2];
-    	    asukaChibi.getLocationOnScreen(location);
-     
-    	    originalXPos = location[0];
-    	    originalYPos = location[1];
-     
-    	    offsetX = originalXPos - x;
-    	    offsetY = originalYPos - y;
-     
-    	} else if (event.getAction() == MotionEvent.ACTION_MOVE) {
-    		asukaChibi.asuka.setState(ATField.SPRITE_WALK);
-    	    int[] topLeftLocationOnScreen = new int[2];
-    	    topLeftView.getLocationOnScreen(topLeftLocationOnScreen);
-     
-//    	    System.out.println("topLeftY="+topLeftLocationOnScreen[1]);
-//    	    System.out.println("originalY="+originalYPos);
-    	    
-    	    float x = event.getRawX();
-    	    float y = event.getRawY();
-     
-    	    WindowManager.LayoutParams params = (LayoutParams) asukaChibi.getLayoutParams();
-     
-    	    int newX = (int) (offsetX + x);
-    	    int newY = (int) (offsetY + y);
-     
-    	    if (Math.abs(newX - originalXPos) < 1 && Math.abs(newY - originalYPos) < 1 && !moving) {
-    		return false;
-    	    }
-     
-    	    params.x = newX - (topLeftLocationOnScreen[0]);
-    	    params.y = newY - (topLeftLocationOnScreen[1]);
-     
-    	    wm.updateViewLayout(asukaChibi, params);
-    	    moving = true;
-    	} else if (event.getAction() == MotionEvent.ACTION_UP) {
-    		//asuka.asuka.setState(ATField.SPRITE_RUN);
-    		//AIAction();
-    	    if (moving) {
-    		return true;
-    	    }
-    	}
-     
+//    	
+//
+//    	if (event.getAction() == MotionEvent.ACTION_DOWN) {
+//    	    float x = event.getRawX();
+//    	    float y = event.getRawY();
+//     
+//    	    moving = false;
+//     
+//    	    int[] location = new int[2];
+//    	    asukaChibi.getLocationOnScreen(location);
+//     
+//    	    originalXPos = location[0];
+//    	    originalYPos = location[1];
+//     
+//    	    offsetX = originalXPos - x;
+//    	    offsetY = originalYPos - y;
+//     
+//    	} else if (event.getAction() == MotionEvent.ACTION_MOVE) {
+//    		asukaChibi.asuka.setState(ATField.SPRITE_WALK);
+//    	    int[] topLeftLocationOnScreen = new int[2];
+//    	    topLeftView.getLocationOnScreen(topLeftLocationOnScreen);
+//     
+////    	    System.out.println("topLeftY="+topLeftLocationOnScreen[1]);
+////    	    System.out.println("originalY="+originalYPos);
+//    	    
+//    	    float x = event.getRawX();
+//    	    float y = event.getRawY();
+//     
+//    	    WindowManager.LayoutParams params = (LayoutParams) asukaChibi.getLayoutParams();
+//     
+//    	    int newX = (int) (offsetX + x);
+//    	    int newY = (int) (offsetY + y);
+//     
+//    	    if (Math.abs(newX - originalXPos) < 1 && Math.abs(newY - originalYPos) < 1 && !moving) {
+//    		return false;
+//    	    }
+//     
+//    	    params.x = newX - (topLeftLocationOnScreen[0]);
+//    	    params.y = newY - (topLeftLocationOnScreen[1]);
+//     
+//    	    wm.updateViewLayout(asukaChibi, params);
+//    	    moving = true;
+//    	} else if (event.getAction() == MotionEvent.ACTION_UP) {
+//    		//asuka.asuka.setState(ATField.SPRITE_RUN);
+//    		//AIAction();
+//    	    if (moving) {
+//    		return true;
+//    	    }
+//    	}
+//     
     	return false;
     }
  
@@ -209,7 +252,34 @@ public class SingletonFanService extends Service implements OnTouchListener, OnC
 	Toast.makeText(this, "Overlay button click event", Toast.LENGTH_SHORT).show();
     }
     
-    
+    public void moveMotion(final int dis){
+    	handler.post(new Runnable() {
+			@Override
+			public void run() {
+//				moveAsuka();
+				//WindowManager.LayoutParams params = (LayoutParams) asukaChibi.getLayoutParams();
+				WindowManager.LayoutParams params = (LayoutParams) vg.getLayoutParams();
+		    	int[] location = new int[2];
+		    	//asukaChibi.getLocationOnScreen(location);
+			    vg.getLocationOnScreen(location);
+			    originalXPos = location[0];
+			    originalYPos = location[1];
+			    Log.i(TAG,"orgXPos & orgYPos = "+  originalXPos+":"+originalYPos+":"+dm.heightPixels);
+			    offsetX = originalXPos;
+			    offsetY = originalYPos;
+			    int newX = (int) (offsetX);
+			    int newY = (int) (offsetY);
+//			    Log.i(TAG,"newX & newY = "+ newX+":"+newY);
+			    params.x = originalXPos + dis;
+			    params.y = originalYPos - 50;
+//			    params.x = (int)asukaChibi.getX() + 10;
+//			    params.y = (int)asukaChibi.getY();
+			    WindowManager wm = (WindowManager) getSystemService(Context.WINDOW_SERVICE);
+			    //wm.updateViewLayout(asukaChibi, params);
+			    wm.updateViewLayout(vg, params);
+			}
+		});
+    }
     
     public void moveAsuka(){
     	WindowManager.LayoutParams params = (LayoutParams) asukaChibi.getLayoutParams();
@@ -279,8 +349,8 @@ public class SingletonFanService extends Service implements OnTouchListener, OnC
     		animatorThread = new AnimateThread(this);
     		holder = this.getHolder();
     		holder.addCallback(leCallback());
-//    		this.setZOrderOnTop(true);
-//    		this.getHolder().setFormat(PixelFormat.TRANSPARENT);
+    		this.setZOrderOnTop(true);
+    		this.getHolder().setFormat(PixelFormat.TRANSPARENT);
     	}
     	
     	@SuppressLint("DrawAllocation")
@@ -390,6 +460,9 @@ public class SingletonFanService extends Service implements OnTouchListener, OnC
     
     public class AsukaLangley {
     	
+    	Coordinates[][] coordArray = new Coordinates[15][10]; 
+//		coords[0][0] = new Coordinates(0, 0, 0, 0);
+    	
     	private String TAG = "AsukaChan";
     	
     	private List<Coordinates> walkSprite = new ArrayList<Coordinates>();
@@ -461,55 +534,69 @@ public class SingletonFanService extends Service implements OnTouchListener, OnC
     	}
     	
     	public void move(){
-//    		if(asuka == null)
-//    			asuka = asukanormal;
+    		if(spriteX >10){
+				spriteX = 0;
+				AIAction();
+			}
+			
     		switch(state){
     			case ATField.SPRITE_STAND:
-    				spriteX = 0;
-    				coords = standbySprite.get(spriteX);
-    				spriteImg = new Rect(coords.left,coords.top,coords.right,coords.bottom);
-    				actualImg = new Rect(x, y, x + width, y + height);
+    				coords = coordArray[ATField.SPRITE_STAND][0];
     				break;
     			
     		
-    			case ATField.SPRITE_WALK:
-    				if(spriteX >walkSprite.size() - 1){
-    					spriteX = 0;
-    					AIAction();
-    				}
+    			case ATField.SPRITE_WALK:		
+    				coords = coordArray[ATField.SPRITE_WALK][spriteX % 2];
+    				moveMotion(2);
     				
-    				coords = walkSprite.get(spriteX);
-    				spriteImg = new Rect(coords.left,coords.top,coords.right,coords.bottom);
-    				actualImg = new Rect(x, y, x + width, y + height);
-    				spriteX++;
-    				//moveAsuka();
-    				
-    				
-    			break;
+    				break;
     			
     			case ATField.SPRITE_RUN:
-    				
-    				if(spriteX >runSprite.size() - 1){
-    					spriteX = 0;
-    					AIAction();
-    				}
-    				coords = runSprite.get(spriteX);
-    				spriteImg = new Rect(coords.left,coords.top,coords.right,coords.bottom);
-    				actualImg = new Rect(x, y, x + width, y + height);
-    				spriteX++;
-    				
+    				coords = coordArray[ATField.SPRITE_RUN][spriteX % 2];
+    				moveMotion(4);
     				break;
     			
     			case ATField.SPRITE_JUMP:
-    				if(spriteX >5){
-    					AIAction();
+    				coords = coordArray[ATField.SPRITE_JUMP][0];
+    				break;
+    				
+    			case ATField.SPRITE_ANGRY:
+    				coords = coordArray[ATField.SPRITE_ANGRY][spriteX % 2];
+    				break;
+    				
+    			case ATField.SPRITE_CRY:
+    				coords = coordArray[ATField.SPRITE_CRY][0];
+    				break;
+    				
+    			case ATField.SPRITE_POINT:
+    				coords = coordArray[ATField.SPRITE_POINT][0];
+    				break;
+    				
+    			case ATField.SPRITE_ATTACK:
+    				coords = coordArray[ATField.SPRITE_ATTACK][0];
+    				break;
+    				
+    			case ATField.SPRITE_HIT:
+    				coords = coordArray[ATField.SPRITE_HIT][0];
+    				break;
+    				
+    			case ATField.SPRITE_HAPPY:
+    				coords = coordArray[ATField.SPRITE_HAPPY][0];
+    				break;
+    				
+    			case ATField.SPRITE_LOVE:
+    				if(spriteX == 10){
+    					spriteX = 0;
+    					setState(STAND);
     				}
-    				coords = jumpSprite.get(0);
-    				spriteImg = new Rect(coords.left,coords.top,coords.right,coords.bottom);
-    				actualImg = new Rect(x, y, x + width, y + height);
-    				spriteX++;
+    				coords = coordArray[ATField.SPRITE_LOVE][0];
     				break;
     		}
+    		
+    		spriteImg = new Rect(coords.left,coords.top,coords.right,coords.bottom);
+			actualImg = new Rect(x, y, x + width, y + height);
+			spriteX++;
+			
     	}
     	
     	private void createasuka(){
@@ -536,62 +623,85 @@ public class SingletonFanService extends Service implements OnTouchListener, OnC
     	}
     	
     	private void setStand(){
-    		standbySprite.add(new Coordinates(0,0,66,130));
+    		coordArray[ATField.SPRITE_STAND][0] = new Coordinates(0,0,66,130);
+    		
+//    		standbySprite.add(new Coordinates(0,0,66,130));
     	}
     	
     	private void setWalk(){
-    		walkSprite.add(new Coordinates(66,0,132,130));
-    		walkSprite.add(new Coordinates(132,0,198,130));
+    		coordArray[ATField.SPRITE_WALK][0] = new Coordinates(66,0,132,130);
+    		coordArray[ATField.SPRITE_WALK][1] = new Coordinates(132,0,198,130);
+    		
+//    		walkSprite.add(new Coordinates(66,0,132,130));
+//    		walkSprite.add(new Coordinates(132,0,198,130));
     		//walkSprite.add(new Coordinates(198,0,264,130));
     	}
     	
     	private void setRun(){
-    		runSprite.add(new Coordinates(198,0,264,130));
-    		runSprite.add(new Coordinates(264,0,330,130));
+    		coordArray[ATField.SPRITE_RUN][0] = new Coordinates(198,0,264,130);
+    		coordArray[ATField.SPRITE_RUN][1] = new Coordinates(264,0,330,130);
+    		
+//    		runSprite.add(new Coordinates(198,0,264,130));
+//    		runSprite.add(new Coordinates(264,0,330,130));
     	}
     	
     	private void setJump(){
-    		jumpSprite.add(new Coordinates(330,0,396,130));
+    		coordArray[ATField.SPRITE_JUMP][0] = new Coordinates(330,0,396,130);
+//    		jumpSprite.add(new Coordinates(330,0,396,130));
     	}
     	
     	private void setAngry(){
-    		angrySprite.add(new Coordinates(396,0,462,130));
-    		angrySprite.add(new Coordinates(462,0,528,130));
+    		coordArray[ATField.SPRITE_ANGRY][0] = new Coordinates(396,0,462,130);
+    		coordArray[ATField.SPRITE_ANGRY][1] = new Coordinates(462,0,528,130);
+    		
+//    		angrySprite.add(new Coordinates(396,0,462,130));
+//    		angrySprite.add(new Coordinates(462,0,528,130));
     	}
     	
     	private void setCry(){
-    		crySprite.add(new Coordinates(528,0,594,130));
-    		crySprite.add(new Coordinates(594,0,660,130));
+    		coordArray[ATField.SPRITE_CRY][0] = new Coordinates(528,0,594,130);
+    		coordArray[ATField.SPRITE_CRY][1] = new Coordinates(594,0,660,130);
+    		
+    		
+//    		crySprite.add(new Coordinates(528,0,594,130));
+//    		crySprite.add(new Coordinates(594,0,660,130));
     	}
     	
     	private void setPoint(){
-    		pointSprite.add(new Coordinates(660,0,726,130));
+    		coordArray[ATField.SPRITE_POINT][0] = new Coordinates(660,0,726,130);
+    		
+//    		pointSprite.add(new Coordinates(660,0,726,130));
     	}
     	
     	private void setLove(){
-    		loveSprite.add(new Coordinates(726,0,792,130));
-    		loveSprite.add(new Coordinates(792,0,858,130));
+    		coordArray[ATField.SPRITE_LOVE][0] = new Coordinates(726,0,792,130);
+    		coordArray[ATField.SPRITE_LOVE][1] = new Coordinates(792,0,858,130);
+    		
+//    		loveSprite.add(new Coordinates(726,0,792,130));
+//    		loveSprite.add(new Coordinates(792,0,858,130));
     	}
     	
     	private void setPunch(){
-    		punchSprite.add(new Coordinates(858,0,924,130));
+    		coordArray[ATField.SPRITE_ATTACK][0] = new Coordinates(858,0,924,130);
+    		
+//    		punchSprite.add(new Coordinates(858,0,924,130));
     	}
     	
     	private void setConfuse(){
-    		confuseSprite.add(new Coordinates(924,0,990,130));
+    		coordArray[ATField.SPRITE_HIT][0] = new Coordinates(924,0,990,130);
+//    		confuseSprite.add(new Coordinates(924,0,990,130));
     	}
     	
     	private void setHappy(){
-    		happySprite.add(new Coordinates(990,0,1056,130));
+    		coordArray[ATField.SPRITE_HAPPY][0] = new Coordinates(990,0,1056,130);
+//    		happySprite.add(new Coordinates(990,0,1056,130));
     	}
     	
     	private void AIAction(){
-        	int ai = new Random().nextInt(3);
+        	int ai = new Random().nextInt(11);
         	
         	switch(ai){
         	
-        	case 0:
-        		break;
         	
         	case 1:
         		//WALK
@@ -625,7 +735,7 @@ public class SingletonFanService extends Service implements OnTouchListener, OnC
         	
         	case 7:
         		//LOVE
-        		state = LOVE;
+//        		state = LOVE;
         		break;	
         	
         	case 8:
